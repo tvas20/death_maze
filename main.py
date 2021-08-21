@@ -12,13 +12,14 @@ import random
 import pygame
 from pygame.locals import *
 from sys import exit
-#from Objects import * (está dando erro no carregamento do jogo)
 
 clock = pygame.time.Clock()  # Set up the clock
 
 # Window
 pygame.init()
 pygame.display.set_caption('Death Maze')
+icon = pygame.image.load('game_theme/Assets/images/sprites/player-right.png')
+pygame.display.set_icon(icon)
 width, height = 640, 700
 
 window = pygame.display.set_mode((width, height))
@@ -29,10 +30,17 @@ fonte = pygame.font.SysFont("arial", 20, True, False)
 
 # Player
 player_img = pygame.image.load('game_theme/Assets/images/sprites/player-right.png')
-x_player = 288
-y_player = 320
+x_player = (width / 2) - player_img.get_width() 
+y_player = (height / 2) - player_img.get_width()
 player_rect = pygame.Rect(x_player, y_player, player_img.get_width(), player_img.get_height())  # Set up the hitbox
-player_speed = 3.5
+player_speed = 5
+
+# colisão do player com as bordas do labirinto:
+player_img_rect = player_img.get_rect()
+player_img_rect.center = [x_player, y_player]
+def player(x, y):
+    canvas.blit(player_img, (x, y))
+    player_img_rect.center = [x, y]
 
 moving_u = False
 moving_d = False
@@ -73,8 +81,8 @@ clock_rect = pygame.Rect(x_clock, y_clock, clock_img.get_width(), clock_img.get_
 ground_img, wall_img = pygame.image.load('game_theme/Assets/images/grassdirt-small.png'), pygame.image.load('game_theme/Assets/images/wall.jpeg')
 
 game_map = [[0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
             [1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0],
@@ -84,13 +92,13 @@ game_map = [[0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
             [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
             [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
-            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
 
 # background music (test):
@@ -178,18 +186,18 @@ while True:
 
     # player movement atributes
     player_movement = [0, 0]
-    if moving_u:
+    if moving_u and player_img_rect.top > -(player_img.get_width() / 2):
         player_movement[1] -= player_speed
-    if moving_d:
+    if moving_d and player_img_rect.bottom < (width - (player_img.get_width() / 2)):
         player_movement[1] += player_speed
-    if moving_r:
+    if moving_r and player_img_rect.right < (width - (player_img.get_width() / 2)):
         player_movement[0] += player_speed
-    if moving_l:
+    if moving_l and player_img_rect.left > -(player_img.get_width() / 2):
         player_movement[0] -= player_speed
 
     player_rect, collisions_direction = movement(player_rect, player_movement, tile_rects)
 
-    canvas.blit(player_img, (player_rect.x, player_rect.y))
+    player(player_rect.x, player_rect.y)
 
     # ammo spawn-------------------------------------------------------------------------------------------------
     # spawn inicial
@@ -199,7 +207,7 @@ while True:
 
     # colisão com player
     if player_rect.colliderect(ammo1_rect):
-        ammo_count += 1  # incrementa o total de munição
+        ammo_count += 3  # incrementa o total de munição
 
         # novo spawn
         x_ammo1 = random.randint(40, 600)
@@ -209,7 +217,7 @@ while True:
         ammo1_rect = colision_test_for_spawnables(ammo1_rect, ammo1_img, x_ammo1, y_ammo1)
         canvas.blit(ammo1_img, (ammo1_rect.x, ammo1_rect.y))  # print na tela
 
-    ammo_string = str(f'munição: {str(ammo_count)}')
+    ammo_string = str(f'Munição: {str(ammo_count)}')
     texto_municao = fonte.render(ammo_string, True, (255, 255, 255))
     window.blit(texto_municao, (500, 20))
 
@@ -237,7 +245,7 @@ while True:
         clock_rect = colision_test_for_spawnables(clock_rect, clock_img, x_clock, y_clock)
         canvas.blit(clock_img, (clock_rect.x, clock_rect.y))  # prpinta relogio na tela
 
-    cronometro = f"Zombie coming: {timer}s"
+    cronometro = f"Zombies coming in: {timer}s"
     texto_cronometro = fonte.render(cronometro, True, (255, 255, 255))
     window.blit(texto_cronometro, (20, 20))
 
