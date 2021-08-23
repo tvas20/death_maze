@@ -8,6 +8,7 @@
 
 '''
 
+from os import remove
 import random
 import pygame
 from pygame.locals import *
@@ -18,7 +19,7 @@ clock = pygame.time.Clock()  # Set up the clock
 # Window
 pygame.init()
 pygame.display.set_caption('Death Maze')
-icon = pygame.image.load('game_theme/Assets/images/sprites/player-right.png')
+icon = pygame.image.load('game_theme/Assets/images/sprites/player-up.png')
 pygame.display.set_icon(icon)
 width, height = 640, 700
 
@@ -33,11 +34,13 @@ player_img = pygame.image.load('game_theme/Assets/images/sprites/player-right.pn
 x_player = (width / 2) - player_img.get_width() 
 y_player = (height / 2) - player_img.get_width()
 player_rect = pygame.Rect(x_player, y_player, player_img.get_width(), player_img.get_height())  # Set up the hitbox
-player_speed = 5
+player_speed = 8.65 # ------> ALTEREI AQUI <------
+player_health = 100 # ------> ALTEREI AQUI <------
 
 # colisão do player com as bordas do labirinto:
 player_img_rect = player_img.get_rect()
 player_img_rect.center = [x_player, y_player]
+
 def player(x, y):
     canvas.blit(player_img, (x, y))
     player_img_rect.center = [x, y]
@@ -46,6 +49,69 @@ moving_u = False
 moving_d = False
 moving_r = False
 moving_l = False
+
+# ------> ALTEREI AQUI <------
+
+# criação da bala do player:
+bullet_img = pygame.image.load('game_theme/Assets/images/sprites/bullet.png')
+x_bullet = width + 64
+y_bullet = height + 64
+bullet_rect = pygame.Rect(x_bullet, y_bullet, bullet_img.get_width(), bullet_img.get_height())
+bullet_spped = 30
+bullet_state = 'ready' # pronta para ser disparada
+bullet_collided_zombie = False
+
+def fire_bullet(x, y):
+    global bullet_state
+    bullet_state = 'fire'
+    canvas.blit(bullet_img, (x + 10.5, y + 10.4))
+
+# gravar o sentido apontado pelo player:
+ultima_tecla_pressionada = 'd'
+
+def colisao_bala_zombie(rect_bullet, lista_zombie):
+    global player_img, bullet_collided_zombie
+    lista_zombie_copia = [x for x in lista_zombie]
+    for zombie in lista_zombie_copia:
+        if rect_bullet.colliderect(zombie[2]):
+            lista_zombie.remove(zombie)
+            bullet_collided_zombie = True
+
+def colisao_bala_parede(bullet_rect):
+    global tile_rects
+    for tile in tile_rects:
+        if bullet_rect.colliderect(tile):
+            return True
+    return False
+
+# criação do zombie (inimigo):
+inimigos = []
+inimigo_img = pygame.image.load('game_theme/Assets/images/sprites/zombie.png')
+
+def criar_inimigos(lista_zombie):
+    qnt_zombie = random.randint(5, 10)
+    for i in range(qnt_zombie):
+        x_inimigo = random.choice([-inimigo_img.get_width(), width + inimigo_img.get_width()])
+        y_inimigo = random.choice([-inimigo_img.get_height(), height + inimigo_img.get_height()])
+        inimigo_speed = random.choice([1.88, 2.95, 3.8, 4.95])
+        inimigo_rect = pygame.Rect(x_inimigo, y_inimigo, inimigo_img.get_width(), inimigo_img.get_height())
+        # cria um zombie com suas propriedades:
+        lista_zombie.append([i, inimigo_img, inimigo_rect, inimigo_speed]) 
+
+def desenhar_inimigos(lista_zombie): 
+    for zombie in lista_zombie:
+        canvas.blit(zombie[1], (zombie[2].x, zombie[2].y))
+
+
+def colisao_player_inimigo(rect_player, lista_zombies):
+    global player_health
+    for zombie in lista_zombies:
+        if rect_player.colliderect(zombie[2]):
+            player_health -= 0.099
+            zombie[1] = pygame.image.load('game_theme/Assets/images/sprites/zombie_red.png')
+        else:
+            zombie[1] = pygame.image.load('game_theme/Assets/images/sprites/zombie.png')
+                
 
 # munição-------------------------------------------------------------------------------------------------------------
 ammo_count = 0
@@ -80,31 +146,33 @@ clock_rect = pygame.Rect(x_clock, y_clock, clock_img.get_width(), clock_img.get_
 # Map
 ground_img, wall_img = pygame.image.load('game_theme/Assets/images/grassdirt-small.png'), pygame.image.load('game_theme/Assets/images/wall.jpeg')
 
-game_map = [[0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+game_map = [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-            [1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-            [0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
             [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1],
+            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
+            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-# background music (test):
-pygame.mixer.music.set_volume(0.07)
+# configurações de auido:
+pygame.mixer.music.set_volume(0.25) #------> ALTEREI AQUI <------
 bg_music = pygame.mixer.music.load('game_theme/Assets/audio/bg_music.mp3')
 pygame.mixer.music.play(-1)
+shot_sound = pygame.mixer.Sound('game_theme/Assets/audio/shot_bullet.wav')
+shot_sound.set_volume(0.11)
 
 # Collision Detection Function
 def collision_test(rect, tiles):
@@ -160,7 +228,7 @@ def colision_test_for_spawnables(sprite_rect, sprite_img, x, y):
             else:
                 coliding_wall = False
     return sprite_rect
-
+    
 
 # Game Loop
 while True:
@@ -198,6 +266,29 @@ while True:
     player_rect, collisions_direction = movement(player_rect, player_movement, tile_rects)
 
     player(player_rect.x, player_rect.y)
+
+    # ------> ALTEREI AQUI <------
+    if len(inimigos) == 0:
+        criar_inimigos(inimigos)
+    else:
+        for zombie in inimigos:
+            inimigo_movement = [0, 0]
+            if player_rect.x > zombie[2].x:
+                inimigo_movement[0] += zombie[3]
+            if player_rect.x < zombie[2].x:
+                inimigo_movement[0] -= zombie[3]
+            if player_rect.y > zombie[2].y:
+                inimigo_movement[1] += zombie[3]
+            if player_rect.y < zombie[2].y:
+                inimigo_movement[1] -= zombie[3]
+
+            zombie[2], collisions_direction_zombie = movement(zombie[2], inimigo_movement, tile_rects)
+
+        desenhar_inimigos(inimigos)
+
+
+        colisao_player_inimigo(player_rect, inimigos)
+        #print(f'Energia Vital: {player_health:.2f}%')
 
     # ammo spawn-------------------------------------------------------------------------------------------------
     # spawn inicial
@@ -259,16 +350,31 @@ while True:
         if event.type == KEYDOWN:
             if event.key == K_w or event.key == K_UP:
                 moving_u = True
-                player_img = pygame.image.load('game_theme/Assets/images/sprites/player-up.png')
+                if bullet_state == 'ready':
+                    ultima_tecla_pressionada = 'w'
+                    player_img = pygame.image.load('game_theme/Assets/images/sprites/player-up.png')
             if event.key == K_a or event.key == K_LEFT:
                 moving_l = True
-                player_img = pygame.image.load('game_theme/Assets/images/sprites/player-left.png')
+                if bullet_state == 'ready':
+                    ultima_tecla_pressionada = 'a'
+                    player_img = pygame.image.load('game_theme/Assets/images/sprites/player-left.png')
             if event.key == K_s or event.key == K_DOWN:
                 moving_d = True
-                player_img = pygame.image.load('game_theme/Assets/images/sprites/player-down.png')
+                if bullet_state == 'ready':
+                    ultima_tecla_pressionada = 's'
+                    player_img = pygame.image.load('game_theme/Assets/images/sprites/player-down.png')
             if event.key == K_d or event.key == K_RIGHT:
                 moving_r = True
-                player_img = pygame.image.load('game_theme/Assets/images/sprites/player-right.png')
+                if bullet_state == 'ready':
+                    ultima_tecla_pressionada = 'd'
+                    player_img = pygame.image.load('game_theme/Assets/images/sprites/player-right.png')
+            if event.key == K_SPACE and bullet_state == 'ready' and ammo_count > 0:
+                bullet_rect.x = player_rect.x
+                bullet_rect.y = player_rect.y
+                fire_bullet(bullet_rect.x, bullet_rect.y)
+                ammo_count -= 1 # ALTEREI AQUI <------
+                shot_sound.play()
+                
 
         if event.type == KEYUP:
             if event.key == K_w or event.key == K_UP:
@@ -279,6 +385,29 @@ while True:
                 moving_d = False
             if event.key == K_d or event.key == K_RIGHT:
                 moving_r = False
+    
+    # ------> ALTEREI AQUI <------
+    # movimento da bala:
+    if (bullet_rect.x < -(player_img.get_width() / 2) or bullet_rect.x >= width or bullet_rect.y <= 0 or bullet_rect.y >= height
+        or bullet_collided_zombie or colisao_bala_parede(bullet_rect)):
+        bullet_rect.x = width + 64
+        bullet_rect.y = height + 64
+        bullet_state = 'ready' 
+        bullet_collided_zombie = False
+    
+    if bullet_state == 'fire':
+        if ultima_tecla_pressionada == 'w':
+            bullet_rect.y -= bullet_spped
+        if ultima_tecla_pressionada == 'a':
+            bullet_rect.x -= bullet_spped
+        if ultima_tecla_pressionada == 's':
+            bullet_rect.y += bullet_spped
+        if ultima_tecla_pressionada == 'd':
+            bullet_rect.x += bullet_spped
+        fire_bullet(bullet_rect.x, bullet_rect.y)
+
+    if len(inimigos) > 0:
+        colisao_bala_zombie(bullet_rect, inimigos)
 
     surf = pygame.transform.scale(canvas, (640, 640))
     window.blit(surf, (0, 60))
