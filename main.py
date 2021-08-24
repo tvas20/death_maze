@@ -8,18 +8,19 @@
 
 '''
 
-from os import remove
+
 import random
 import pygame
 from pygame.locals import *
 from sys import exit
+from time import sleep
 
 clock = pygame.time.Clock()  # Set up the clock
 
 # Window
 pygame.init()
 pygame.display.set_caption('Death Maze')
-icon = pygame.image.load('game_theme/Assets/images/sprites/player-up.png')
+icon = pygame.image.load('Assets/images/sprites/player-up.png')
 pygame.display.set_icon(icon)
 width, height = 640, 700
 
@@ -30,7 +31,7 @@ canvas = pygame.Surface((640, 640))
 fonte = pygame.font.SysFont("arial", 20, True, False)
 
 # Player
-player_img = pygame.image.load('game_theme/Assets/images/sprites/player-right.png')
+player_img = pygame.image.load('Assets/images/sprites/player-right.png')
 x_player = (width / 2) - player_img.get_width() 
 y_player = (height / 2) - player_img.get_width()
 player_rect = pygame.Rect(x_player, y_player, player_img.get_width(), player_img.get_height())  # Set up the hitbox
@@ -53,7 +54,7 @@ moving_l = False
 # ------> ALTEREI AQUI <------
 
 # criação da bala do player:
-bullet_img = pygame.image.load('game_theme/Assets/images/sprites/bullet.png')
+bullet_img = pygame.image.load('Assets/images/sprites/bullet.png')
 x_bullet = width + 64
 y_bullet = height + 64
 bullet_rect = pygame.Rect(x_bullet, y_bullet, bullet_img.get_width(), bullet_img.get_height())
@@ -86,7 +87,7 @@ def colisao_bala_parede(bullet_rect):
 
 # criação do zombie (inimigo):
 inimigos = []
-inimigo_img = pygame.image.load('game_theme/Assets/images/sprites/zombie.png')
+inimigo_img = pygame.image.load('Assets/images/sprites/zombie.png')
 
 def criar_inimigos(lista_zombie):
     qnt_zombie = random.randint(5, 10)
@@ -108,25 +109,25 @@ def colisao_player_inimigo(rect_player, lista_zombies):
     for zombie in lista_zombies:
         if rect_player.colliderect(zombie[2]):
             player_health -= 0.099
-            zombie[1] = pygame.image.load('game_theme/Assets/images/sprites/zombie_red.png')
+            zombie[1] = pygame.image.load('Assets/images/sprites/zombie_red.png')
         else:
-            zombie[1] = pygame.image.load('game_theme/Assets/images/sprites/zombie.png')
+            zombie[1] = pygame.image.load('Assets/images/sprites/zombie.png')
                 
 
 # munição-------------------------------------------------------------------------------------------------------------
 ammo_count = 0
 
-ammo1_img = pygame.image.load('game_theme/Assets/images/bullets.png')
+ammo1_img = pygame.image.load('Assets/images/bullets.png')
 x_ammo1 = random.randint(40, 600)
 y_ammo1 = random.randint(40, 600)
 ammo1_rect = pygame.Rect(x_ammo1, y_ammo1, ammo1_img.get_width(), ammo1_img.get_height())  # Set up the hitbox
 
-ammo2_img = pygame.image.load('game_theme/Assets/images/bullets.png')
+ammo2_img = pygame.image.load('Assets/images/bullets.png')
 x_ammo2 = random.randint(40, 600)
 y_ammo2 = random.randint(40, 600)
 ammo2_rect = pygame.Rect(x_ammo2, y_ammo2, ammo2_img.get_width(), ammo2_img.get_height())  # Set up the hitbox
 
-ammo3_img = pygame.image.load('game_theme/Assets/images/bullets.png')
+ammo3_img = pygame.image.load('Assets/images/bullets.png')
 x_ammo3 = random.randint(40, 600 - ammo3_img.get_width())
 y_ammo3 = random.randint(40, 600 - ammo3_img.get_height())
 ammo3_rect = pygame.Rect(x_ammo3, y_ammo3, ammo3_img.get_width(), ammo3_img.get_height())  # Set up the hitbox
@@ -136,7 +137,7 @@ ammo3_rect = pygame.Rect(x_ammo3, y_ammo3, ammo3_img.get_width(), ammo3_img.get_
 current_time = 0
 time_objective = 60
 
-clock_img = pygame.image.load('game_theme/Assets/images/hourglass.png')
+clock_img = pygame.image.load('Assets/images/hourglass.png')
 x_clock = random.randint(40, 600)
 y_clock = random.randint(40, 600)
 clock_rect = pygame.Rect(x_clock, y_clock, clock_img.get_width(), clock_img.get_height())  # set up hitbox
@@ -144,7 +145,7 @@ clock_rect = pygame.Rect(x_clock, y_clock, clock_img.get_width(), clock_img.get_
 # -------------------------------------------------------------------------------------------------
 
 # Map
-ground_img, wall_img = pygame.image.load('game_theme/Assets/images/grassdirt-small.png'), pygame.image.load('game_theme/Assets/images/wall.jpeg')
+ground_img, wall_img = pygame.image.load('Assets/images/grassdirt-small.png'), pygame.image.load('Assets/images/wall.jpeg')
 
 game_map = [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
@@ -169,9 +170,9 @@ game_map = [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
 
 # configurações de auido:
 pygame.mixer.music.set_volume(0.25) #------> ALTEREI AQUI <------
-bg_music = pygame.mixer.music.load('game_theme/Assets/audio/bg_music.mp3')
+bg_music = pygame.mixer.music.load('Assets/audio/bg_music.mp3')
 pygame.mixer.music.play(-1)
-shot_sound = pygame.mixer.Sound('game_theme/Assets/audio/shot_bullet.wav')
+shot_sound = pygame.mixer.Sound('Assets/audio/shot_bullet.wav')
 shot_sound.set_volume(0.11)
 
 # Collision Detection Function
@@ -229,14 +230,16 @@ def colision_test_for_spawnables(sprite_rect, sprite_img, x, y):
                 coliding_wall = False
     return sprite_rect
     
-
+tempo_rel = 0 #spawn de itens (tempo)
+tempo_mun = 0 #spawn de itens (tempo)
 # Game Loop
 while True:
+    tempo_rel += 1
+    tempo_mun += 1
     # deleta a tela de fundo
     # necessario para blits não se sobreporem
     window.fill((0, 0, 0))
     canvas.fill((0, 0, 0))
-
     # map construction
     tile_rects = []
     r = 0  # r for row
@@ -301,12 +304,23 @@ while True:
         ammo_count += 3  # incrementa o total de munição
 
         # novo spawn
+        x_ammo1 = random.randint(700, 700)
+        y_ammo1 = random.randint(700, 700)
+        ammo1_rect = pygame.Rect(x_ammo1, y_ammo1, player_img.get_width(), player_img.get_height())  # Set up the hitbox
+        # teste de colisão pre spawn
+        ammo1_rect = colision_test_for_spawnables(ammo1_rect, ammo1_img, x_ammo1, y_ammo1)
+        canvas.blit(ammo1_img, (ammo1_rect.x, ammo1_rect.y))  # print na tela
+
+    if tempo_mun == 150:
+        tempo_mun = 0
+        # novo spawn
         x_ammo1 = random.randint(40, 600)
         y_ammo1 = random.randint(40, 600)
         ammo1_rect = pygame.Rect(x_ammo1, y_ammo1, player_img.get_width(), player_img.get_height())  # Set up the hitbox
         # teste de colisão pre spawn
         ammo1_rect = colision_test_for_spawnables(ammo1_rect, ammo1_img, x_ammo1, y_ammo1)
         canvas.blit(ammo1_img, (ammo1_rect.x, ammo1_rect.y))  # print na tela
+
 
     ammo_string = str(f'Munição: {str(ammo_count)}')
     texto_municao = fonte.render(ammo_string, True, (255, 255, 255))
@@ -329,12 +343,23 @@ while True:
         time_objective += 5  # incremento no objetivo de tempo
 
         # novo spawn
+        x_clock = random.randint(700, 700)
+        y_clock = random.randint(700, 700)
+        clock_rect = pygame.Rect(x_clock, y_clock, clock_img.get_width(), clock_img.get_height())  # set up hitbox
+        # teste de colisão pre spawn
+        clock_rect = colision_test_for_spawnables(clock_rect, clock_img, x_clock, y_clock)
+        canvas.blit(clock_img, (clock_rect.x, clock_rect.y))  # printa relogio na tela
+        
+    if tempo_rel == 350:
+        tempo_rel = 0
+        # novo spawn
         x_clock = random.randint(40, 600)
         y_clock = random.randint(40, 600)
         clock_rect = pygame.Rect(x_clock, y_clock, clock_img.get_width(), clock_img.get_height())  # set up hitbox
         # teste de colisão pre spawn
         clock_rect = colision_test_for_spawnables(clock_rect, clock_img, x_clock, y_clock)
         canvas.blit(clock_img, (clock_rect.x, clock_rect.y))  # prpinta relogio na tela
+
 
     cronometro = f"Zombies coming in: {timer}s"
     texto_cronometro = fonte.render(cronometro, True, (255, 255, 255))
@@ -352,22 +377,22 @@ while True:
                 moving_u = True
                 if bullet_state == 'ready':
                     ultima_tecla_pressionada = 'w'
-                    player_img = pygame.image.load('game_theme/Assets/images/sprites/player-up.png')
+                    player_img = pygame.image.load('Assets/images/sprites/player-up.png')
             if event.key == K_a or event.key == K_LEFT:
                 moving_l = True
                 if bullet_state == 'ready':
                     ultima_tecla_pressionada = 'a'
-                    player_img = pygame.image.load('game_theme/Assets/images/sprites/player-left.png')
+                    player_img = pygame.image.load('Assets/images/sprites/player-left.png')
             if event.key == K_s or event.key == K_DOWN:
                 moving_d = True
                 if bullet_state == 'ready':
                     ultima_tecla_pressionada = 's'
-                    player_img = pygame.image.load('game_theme/Assets/images/sprites/player-down.png')
+                    player_img = pygame.image.load('Assets/images/sprites/player-down.png')
             if event.key == K_d or event.key == K_RIGHT:
                 moving_r = True
                 if bullet_state == 'ready':
                     ultima_tecla_pressionada = 'd'
-                    player_img = pygame.image.load('game_theme/Assets/images/sprites/player-right.png')
+                    player_img = pygame.image.load('Assets/images/sprites/player-right.png')
             if event.key == K_SPACE and bullet_state == 'ready' and ammo_count > 0:
                 bullet_rect.x = player_rect.x
                 bullet_rect.y = player_rect.y
