@@ -1,6 +1,6 @@
 
 # Death Maze
-  É um jogo baseado em uma experiencia 2D que mistura um jogo de _shooting_ com sobrevivência, dentro do _game_ o jogador deve coletar recursos como munição, para que a horda seja combatida e tempo extra, para atrasar em alguns segundos a chegada dos zumbis. A sua pontuação é baseada na quantidade de vezes em que você consegue combater a horda e sair vitorioso. Os itens (munição e tempo extra) surgem aleatóriamente no labirinto enquanto o jogador coleta os proprios itens. O jogo tem fim quando seu jogador é derrotado durante uma horda.
+  É um jogo baseado em uma experiência 2D que mistura um jogo de _shooting_ com sobrevivência. Dentro do _game_, o jogador deve coletar recursos como munição, para que a horda seja combatida, e tempo extra, para atrasar em alguns segundos a chegada dos zumbis. A sua pontuação é baseada na quantidade de vezes em que você consegue combater a horda e sair vitorioso. Os itens (munição e tempo extra) surgem aleatóriamente no labirinto enquanto o jogador coleta os próprios itens. O jogo tem fim quando seu jogador é derrotado durante uma horda.
 
 ## Equipe:
 - Abhner Adriel (aacs2)
@@ -23,6 +23,8 @@
 > Este módulo fornece uma maneira simples de usar funcionalidades que são dependentes do sistema operacional. Em nosso código foi usado para o acesso aos _Assets_ (imagens e sons, usados no jogo)
 - **Random**:
 > Este módulo implementa geradores de números pseudoaleatórios. Foi usado no jogo para o _spawn_ aleatorio de itens e zumbis.
+- **Sys**:
+> Este módulo te da acesso a algumas variaveis usadas pelo interpretador e que interagem diretamente com o código. Dentro do _game_ foi usado a função _sys.exit()_ para a parada total do script.
 
 ## Divisão de tarefas:
 
@@ -42,7 +44,7 @@
 - **Estruturas condicionais**:
 > Podem ser usados no código a partir dos comandos _If_, _Elif_ e _Else_, esta estrutura permite a checagem de preposições, quando uma condição é verdade ela executará o trecho de código atrelado a ela. Dentro do jogo essa função é usada essencialmente na movimentação do player principal. 
 - **Funções**:
-> Podem ser usados no código apenas se definidas previamente com a sintaxe _def_, a partir de sua definição podemos invoca-la quantas vezes for necessario dentro do código utilizando apenas o nome que foi dado a ela no momento de sua definição, esta estrutura define um conjunto de comandos, dentro de qualquer programa com um conjunto de comandos que se repita muitas vezes se torna imprescindivel seu uso.
+> Podem ser usados no código apenas se definidas previamente com a sintaxe _def()_, a partir de sua definição podemos invoca-la quantas vezes for necessario dentro do código utilizando apenas o nome que foi dado a ela no momento de sua definição, esta estrutura define um conjunto de comandos, dentro de qualquer programa com um conjunto de comandos que se repita muitas vezes se torna imprescindivel seu uso.
 
 
 ## Desafios/Experiência:
