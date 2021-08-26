@@ -34,8 +34,8 @@ player_img = pygame.image.load('death_maze/Assets/images/sprites/player-right.pn
 x_player = ((width / 2) - player_img.get_width()) + 32
 y_player = ((height / 2) - player_img.get_width()) - 32
 player_rect = pygame.Rect(x_player, y_player, player_img.get_width(), player_img.get_height())  # Set up the hitbox
-player_speed = 8.65 # ------> ALTEREI AQUI <------
-player_health = 100 # ------> ALTEREI AQUI <------
+player_speed = 8.7 
+player_health = 100
 
 # colisão do player com as bordas do labirinto:
 player_img_rect = player_img.get_rect()
@@ -50,8 +50,6 @@ moving_u = False
 moving_d = False
 moving_r = False
 moving_l = False
-
-# ------> ALTEREI AQUI <------
 
 # criação da bala do player:
 bullet_img = pygame.image.load('death_maze/Assets/images/sprites/bullet.png')
@@ -99,7 +97,7 @@ def criar_inimigos(lista_zombie):
     for i in range(qnt_zombie):
         x_inimigo = random.choice([-inimigo_img.get_width(), width + inimigo_img.get_width()])
         y_inimigo = random.choice([-inimigo_img.get_height(), height + inimigo_img.get_height()])
-        inimigo_speed = random.choice([1.895, 2.965, 3.835, 4.985])
+        inimigo_speed = random.choice([1.895, 2.965, 3.835, 4.97])
         inimigo_rect = pygame.Rect(x_inimigo, y_inimigo, inimigo_img.get_width(), inimigo_img.get_height())
         # cria um zombie com suas propriedades:
         lista_zombie.append([i, inimigo_img, inimigo_rect, inimigo_speed])
@@ -112,7 +110,7 @@ def colisao_player_inimigo(rect_player, lista_zombies):
     global player_health
     for zombie in lista_zombies:
         if rect_player.colliderect(zombie[2]):
-            player_health -= 0.109
+            player_health -= 0.2
 
 # munição-------------------------------------------------------------------------------------------------------------
 ammo_count = 0
@@ -122,15 +120,17 @@ x_ammo1 = random.randint(40, 600)
 y_ammo1 = random.randint(40, 600)
 ammo1_rect = pygame.Rect(x_ammo1, y_ammo1, ammo1_img.get_width(), ammo1_img.get_height())  # Set up the hitbox
 
+tempo_mun_1 = 0
+time_bullet_show_1 = random.randint(60, 100)
+
 ammo2_img = pygame.image.load('death_maze/Assets/images/ammo.png')
 x_ammo2 = random.randint(40, 600)
 y_ammo2 = random.randint(40, 600)
 ammo2_rect = pygame.Rect(x_ammo2, y_ammo2, ammo2_img.get_width(), ammo2_img.get_height())  # Set up the hitbox
 
-ammo3_img = pygame.image.load('death_maze/Assets/images/ammo.png')
-x_ammo3 = random.randint(40, 600 - 32)
-y_ammo3 = random.randint(40, 600 - 32)
-ammo3_rect = pygame.Rect(x_ammo3, y_ammo3, ammo3_img.get_width(), ammo3_img.get_height())  # Set up the hitbox
+tempo_mun_2 = 0
+time_bullet_show_2 = random.randint(60, 100)
+
 # -------------------------------------------------------------------------------------------------------------------
 
 # timer -------------------------------------------------------------------------------------------
@@ -145,8 +145,8 @@ clock_rect = pygame.Rect(x_clock, y_clock, clock_img.get_width(), clock_img.get_
 # -------------------------------------------------------------------------------------------------
 
 tempo_rel = 0 #spawn de itens (relógio) - tempo de spawn
-tempo_mun = 0 #spawn de itens (munição) - tempo de spawn
-time_bullet_show = 110
+#tempo_mun = 0 #spawn de itens (munição) - tempo de spawn
+#time_bullet_show = 110
 
 # Map
 ground_img, wall_img = pygame.image.load('death_maze/Assets/images/grass.png'), pygame.image.load('death_maze/Assets/images/wall.png')
@@ -250,10 +250,44 @@ def restart():
     time_objective = (pygame.time.get_ticks() // 1000) + 60
     time_bullet_show = 110
 
+menu_iniciar, entrou_menu = True, False
+
 # Game Loop
 while True:
-    tempo_rel += 1
-    tempo_mun += 1
+    while menu_iniciar:
+        window.fill((0,0,0))
+        if not entrou_menu:
+            title = str('DEATH   MAZE')
+            press_s = str("Press 'S' to start the game")
+            player_img_menu_iniciar = pygame.image.load('death_maze/Assets/images/player_menu.png')
+            zombie_img_menu_iniciar = pygame.image.load('death_maze/Assets/images/zombie_menu.png')
+            message_title = fonte.render(title, True, (255, 0, 0))
+            message_s = fonte.render(press_s, True, (255, 255, 255))
+            rect_title = message_title.get_rect()
+            rect_s = message_s.get_rect()
+            entrou_menu = True
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                exit()
+            if event.type == KEYDOWN:
+                if event.key == K_s:
+                    menu_iniciar = False
+                    timer_menu = pygame.time.get_ticks() // 1000
+                    time_objective += timer_menu
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    exit()
+
+        rect_title.center =  (width//2, height//2)
+        rect_s.center =  (width//2, height//2 + 90)
+        window.blit(player_img_menu_iniciar, (100, 150))
+        window.blit(zombie_img_menu_iniciar, (width - 215, 142))
+        window.blit(message_title, rect_title)
+        window.blit(message_s, rect_s)
+        pygame.display.update()
+
+    #tempo_mun += 1
     # deleta a tela de fundo
     # necessario para blits não se sobreporem
     window.fill((0, 0, 0))
@@ -294,31 +328,60 @@ while True:
     
 
     # ammo spawn-------------------------------------------------------------------------------------------------
+    # ammo 1:
+    tempo_mun_1 += 1
     # spawn inicial
     ammo1_rect = colision_test_for_spawnables(ammo1_rect, ammo1_img, x_ammo1, y_ammo1)  # posiciona o spawn sem colidir com as paredes
     canvas.blit(ammo1_img, (ammo1_rect.x, ammo1_rect.y))  # printa munição na tela
 
     # colisão com player
     if player_rect.colliderect(ammo1_rect):
-        ammo_count += 3  # incrementa o total de munição
+        ammo_count += 2  # incrementa o total de munição
 
         # novo spawn
-        x_ammo1 = random.randint(700, 700)
-        y_ammo1 = random.randint(700, 700)
-        ammo1_rect = pygame.Rect(x_ammo1, y_ammo1, player_img.get_width(), player_img.get_height())  # Set up the hitbox
+        x_ammo1 = y_ammo1 = 700
+        ammo1_rect = pygame.Rect(x_ammo1, y_ammo1, ammo1_img.get_width(), ammo1_img.get_height())  # Set up the hitbox
         # teste de colisão pre spawn
         ammo1_rect = colision_test_for_spawnables(ammo1_rect, ammo1_img, x_ammo1, y_ammo1)
         canvas.blit(ammo1_img, (ammo1_rect.x, ammo1_rect.y))  # print na tela
 
-    if tempo_mun == time_bullet_show:
-        tempo_mun = 0
+    if tempo_mun_1 % time_bullet_show_1 == 0:
+        tempo_mun_1 = 0
         # novo spawn
         x_ammo1 = random.randint(40, 600)
         y_ammo1 = random.randint(40, 600)
-        ammo1_rect = pygame.Rect(x_ammo1, y_ammo1, player_img.get_width(), player_img.get_height())  # Set up the hitbox
+        ammo1_rect = pygame.Rect(x_ammo1, y_ammo1, ammo1_img.get_width(), ammo1_img.get_height())  # Set up the hitbox
         # teste de colisão pre spawn
         ammo1_rect = colision_test_for_spawnables(ammo1_rect, ammo1_img, x_ammo1, y_ammo1)
         canvas.blit(ammo1_img, (ammo1_rect.x, ammo1_rect.y))  # print na tela
+    
+    # ammo 2:
+    tempo_mun_2 += 1
+    # spawn inicial
+    ammo2_rect = colision_test_for_spawnables(ammo2_rect, ammo2_img, x_ammo2, y_ammo2)  # posiciona o spawn sem colidir com as paredes
+    canvas.blit(ammo2_img, (ammo2_rect.x, ammo2_rect.y))  # printa munição na tela
+
+    # colisão com player
+    if player_rect.colliderect(ammo2_rect):
+        ammo_count += 2  # incrementa o total de munição
+
+        # novo spawn
+        x_ammo2 = y_ammo2 = 700
+        ammo2_rect = pygame.Rect(x_ammo2, y_ammo2, ammo2_img.get_width(), ammo2_img.get_height())  # Set up the hitbox
+        # teste de colisão pre spawn
+        ammo2_rect = colision_test_for_spawnables(ammo2_rect, ammo2_img, x_ammo2, y_ammo2)
+        canvas.blit(ammo2_img, (ammo2_rect.x, ammo2_rect.y))  # print na tela
+
+    if tempo_mun_2 % time_bullet_show_2 == 0:
+        tempo_mun_2 = 0
+        # novo spawn
+        x_ammo2 = random.randint(40, 600)
+        y_ammo2 = random.randint(40, 600)
+        ammo2_rect = pygame.Rect(x_ammo2, y_ammo2, ammo2_img.get_width(), ammo2_img.get_height())  # Set up the hitbox
+        # teste de colisão pre spawn
+        ammo2_rect = colision_test_for_spawnables(ammo2_rect, ammo2_img, x_ammo2, y_ammo2)
+        canvas.blit(ammo2_img, (ammo2_rect.x, ammo2_rect.y))  # print na tela
+
 
     ammo_string = str(f'Ammo: {str(ammo_count)}')
     texto_municao = fonte.render(ammo_string, True, (255, 255, 255))
@@ -327,14 +390,17 @@ while True:
     # ----------------------------------------------------------------------------------------------------------------
 
     # timer implementation -------------------------------------------------------------------------------------------
+    tempo_rel += 1
     current_time = pygame.time.get_ticks() // 1000  # pega o tempo a partir da execução do programa em milissegundos e
     # converte para segundos
     timer = time_objective - current_time  # cronometro propriamente dito
-    #print(timer%61)    
+   
     if timer > 0:
-        time_bullet_show = 110
+        time_bullet_show_1 = random.randint(60, 100)
+        time_bullet_show_2 = random.randint(60, 100)
     else:
-        time_bullet_show = 500
+        time_bullet_show_1 = random.randint(390, 490)
+        time_bullet_show_2 = random.randint(390, 490)
 
     # spawn dos relógios
     # primeiro spawn
@@ -343,17 +409,16 @@ while True:
 
     # colisão com player
     if player_rect.colliderect(clock_rect):
-        time_objective += 5  # incremento no objetivo de tempo
+        time_objective += 8  # incremento no objetivo de tempo
 
         # novo spawn
-        x_clock = random.randint(700, 700)
-        y_clock = random.randint(700, 700)
+        x_clock = y_clock = 700
         clock_rect = pygame.Rect(x_clock, y_clock, clock_img.get_width(), clock_img.get_height())  # set up hitbox
         # teste de colisão pre spawn
         clock_rect = colision_test_for_spawnables(clock_rect, clock_img, x_clock, y_clock)
         canvas.blit(clock_img, (clock_rect.x, clock_rect.y))  # printa relogio na tela
 
-    if tempo_rel == 320 and timer > 20:
+    if tempo_rel == 320 and timer > 15:
         tempo_rel = 0
         # novo spawn
         x_clock = random.randint(40, 600)
@@ -362,7 +427,7 @@ while True:
         # teste de colisão pre spawn
         clock_rect = colision_test_for_spawnables(clock_rect, clock_img, x_clock, y_clock)
         canvas.blit(clock_img, (clock_rect.x, clock_rect.y))  # printa relogio na tela
-    if timer <= 20 and 40 <= clock_rect.x <= 600:
+    if timer <= 15 and 40 <= clock_rect.x <= 600:
         clock_rect.x = width + 64
         clock_rect.y = height + 64 
 
@@ -415,12 +480,16 @@ while True:
 
     # game over
     if player_health <= 0:
-        game_over = str('YOU DIED')
+        icon_go = pygame.image.load('death_maze/Assets/images/icon_game_over.png')
+        game_over = str('YOU   DIED!')
         press_r = str("Press 'R' to retry")
+        score_killstreak = f'Killed zombies:   {str(killstreak)}'
         message_go = fonte.render(game_over, True, (255, 0, 0))
         message_r = fonte.render(press_r, True, (255, 255, 255))
+        message_score_killstreak = fonte.render(score_killstreak, True, (255, 255, 255))
         rect_go = message_go.get_rect()
         rect_r = message_r.get_rect()
+        rect_score_killstreak = message_score_killstreak.get_rect()
         dead = True
         while dead:
             window.fill((0,0,0))
@@ -433,8 +502,11 @@ while True:
                         restart()
             
             rect_go.center = (width//2, height//2 - 15)
-            rect_r.center = (width//2, height//2 + 15)
+            rect_score_killstreak.center =  (width//2, height//2 + 60)
+            rect_r.center = (width//2, height//2 + 120)
+            window.blit(icon_go, (width // 2 - 35, height // 2 - 120))
             window.blit(message_go, rect_go)
+            window.blit(message_score_killstreak, rect_score_killstreak)
             window.blit(message_r, rect_r)
             pygame.display.update()
 
