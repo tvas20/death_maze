@@ -259,12 +259,27 @@ while True:
         if not entrou_menu:
             title = str('DEATH   MAZE')
             press_s = str("Press 'S' to start the game")
+            w_jogo = str('[W] - Up')
+            a_jogo = str('[A] - Left')
+            s_jogo = str('[S] - Down')
+            d_jogo = str('[D] - Right')
+            space_jogo = str('[SPACE   BAR] - Shoot')
             player_img_menu_iniciar = pygame.image.load('death_maze/Assets/images/player_menu.png')
             zombie_img_menu_iniciar = pygame.image.load('death_maze/Assets/images/zombie_menu.png')
             message_title = fonte.render(title, True, (255, 0, 0))
             message_s = fonte.render(press_s, True, (255, 255, 255))
+            message_w_jogo = fonte.render(w_jogo, True, (255, 255, 255))
+            message_a_jogo = fonte.render(a_jogo, True, (255, 255, 255))
+            message_s_jogo = fonte.render(s_jogo, True, (255, 255, 255))
+            message_d_jogo = fonte.render(d_jogo, True, (255, 255, 255))
+            message_space_jogo = fonte.render(space_jogo, True, (255, 255, 255))
             rect_title = message_title.get_rect()
             rect_s = message_s.get_rect()
+            rect_w_jogo = message_w_jogo.get_rect()
+            rect_a_jogo = message_a_jogo.get_rect()
+            rect_s_jogo = message_s_jogo.get_rect()
+            rect_d_jogo = message_d_jogo.get_rect()
+            rect_space_jogo = message_space_jogo.get_rect()
             entrou_menu = True
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -279,12 +294,25 @@ while True:
                     pygame.quit()
                     exit()
 
-        rect_title.center =  (width//2, height//2)
-        rect_s.center =  (width//2, height//2 + 90)
+        rect_title.center =  (width//2, height//2 - 30)
+        rect_s.center =  (width//2, height//2 + 60)
+
+        rect_w_jogo.center = (width // 2 - 15, height - 160)
+        rect_a_jogo.center = (width // 2, height - 130)
+        rect_s_jogo.center = (width // 2, height - 100)
+        rect_d_jogo.center = (width // 2, height - 70)
+        rect_space_jogo.center = (width // 2, height - 30)
+
         window.blit(player_img_menu_iniciar, (100, 150))
         window.blit(zombie_img_menu_iniciar, (width - 215, 142))
         window.blit(message_title, rect_title)
         window.blit(message_s, rect_s)
+
+        window.blit(message_w_jogo, rect_w_jogo)
+        window.blit(message_a_jogo, rect_a_jogo)
+        window.blit(message_s_jogo, rect_s_jogo)
+        window.blit(message_d_jogo, rect_d_jogo)
+        window.blit(message_space_jogo, rect_space_jogo)
         pygame.display.update()
 
     #tempo_mun += 1
