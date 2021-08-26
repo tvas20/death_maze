@@ -1,6 +1,6 @@
 
 # Death Maze
-  É um jogo baseado em uma experiência 2D que mistura um jogo de _shooting_ com sobrevivência. Dentro do _game_, o jogador deve coletar recursos como munição, para que a horda seja combatida, e tempo extra, para atrasar em alguns segundos a chegada dos zumbis. A sua pontuação é baseada na quantidade de vezes em que você consegue combater a horda e sair vitorioso. Os itens (munição e tempo extra) surgem aleatóriamente no labirinto enquanto o jogador coleta os próprios itens. O jogo tem fim quando seu jogador é derrotado durante uma horda.
+  É um _game_ baseado em uma experiência 2D que mistura um jogo de _shooting_ com sobrevivência. Dentro do _game_, o jogador deve coletar recursos como munição, para que a horda seja combatida, e tempo extra, para atrasar em alguns segundos a chegada dos zumbis. A sua pontuação é baseada na quantidade de vezes em que você consegue combater a horda e sair vitorioso. Os itens (munição e tempo extra) surgem aleatóriamente no labirinto enquanto o jogador coleta os próprios itens. O jogo tem fim quando seu jogador é derrotado durante uma horda.
 
 ## Equipe:
 - Abhner Adriel (aacs2)
@@ -14,7 +14,28 @@
 - https://github.com/tvas20/death_maze
 
 ## Código:
-
+- **def player(x, y)**:
+> A função é responsável por desenhar a sprite do player principal na tela a partir de um par ordenado recebido como parâmetro.
+- **def fire_bullet(x, y)**:
+> Função que recebe como parâmetro um par ordenado vinculado ao player principal, e desenha a sprite da bala de fogo na tela com um pequeno incremento em cada coordenada para posiciona-la com a arma da sprite do player principal.
+- **def colisao_bala_zombie(rect_bullet, lista_zombie)**:
+> Função que tem como parâmetro a bala de fogo e uma matriz que contém os zumbis presentes na tela do jogo, verificando se houve colisão entre a bala de fogo e algum dos zumbis. Em caso de colisão, o zumbi é removido da tela.
+- **def colisao_bala_parede(bullet_rect)**:
+> Função definida para verificar a ocorrência de colisão entre a bala de fogo e as paredes presentes no mapa do jogo.
+- **def criar_inimigos(lista_zombie)**:
+> Função responsável pela implementação dos zumbis em um sistema de matriz que conterá as coordenadas do zumbi e sua velocidade com auxílio da biblioteca random.
+- **def desenhar_inimigo(lista_zombie)**:
+> Função responsável por receber a matriz dos inimigos (zumbis) e desenhá-los na tela do jogo.
+- **def colisao_player_inimigo(rect_player, lista_zombies)**:
+> Função que determina a ocorrência de colisão entre o player principal e os zumbis. Se confirmada a colisão, a vida do player é decrescida.
+- **def collision_test(rect, tiles)**:
+> Função implementada com o objetivo de analisar possíveis colisões entre um objeto e as paredes do mapa.
+- **def movement(rect, move, titles)**:
+> Função que detecta a direção e o sentido de colisão entre o player e as paredes do mapa a partir da função collision_test.
+- **def colision_test_for_spawnables(sprite_tect, sprite_img, x, y)**:
+> Função que detecta a colisão entre os objetos gerenciáveis e as paredes no momento do spaw. Caso ocorra a colisão, novas coordenadas são escolhidas por meio da biblioteca random.
+- **def restart()**:
+> Nessa função, as principais variáveis do jogo são atualizadas para os seus valores de inicio e o jogo é recomeçado.
 
 ## Bibliotecas/Módulos usada(o)s:
 - **Pygame**:
