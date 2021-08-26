@@ -10,6 +10,7 @@
 
 import random
 import pygame
+from pygame import time
 from pygame.locals import *
 from sys import exit
 
@@ -20,7 +21,7 @@ pygame.init()
 pygame.display.set_caption('Death Maze')
 icon = pygame.image.load('death_maze/Assets/images/icon.png')
 pygame.display.set_icon(icon)
-width, height = 640, 760
+width, height = 640, 720
 
 window = pygame.display.set_mode((width, height))
 canvas = pygame.Surface((640, 640))
@@ -234,7 +235,7 @@ def colision_test_for_spawnables(sprite_rect, sprite_img, x, y):
     return sprite_rect
     
 def restart():
-    global ammo_count, player_health, killstreak, inimigos, dead, tempo_rel, tempo_mun, player_rect, current_time, time_objective
+    global ammo_count, player_health, killstreak, inimigos, dead, tempo_rel, tempo_mun, player_rect, current_time, time_objective, time_bullet_show
 
     ammo_count = 0
     player_health = 100
@@ -246,7 +247,7 @@ def restart():
     player_rect.x = ((width / 2) - player_img.get_width()) + 32
     player_rect.y = ((height / 2) - player_img.get_width()) - 32
     current_time = 0
-    time_objective = 60
+    time_objective = (pygame.time.get_ticks() // 1000) + 60
     time_bullet_show = 110
 
 # Game Loop
@@ -289,7 +290,7 @@ while True:
 
     life_string = str(f'Life: {player_health:.1f}')
     texto_vida = fonte.render(life_string, True, (255, 255, 255))
-    window.blit(texto_vida, (20, 720))
+    window.blit(texto_vida, (20, 690))
     
 
     # ammo spawn-------------------------------------------------------------------------------------------------
@@ -321,7 +322,7 @@ while True:
 
     ammo_string = str(f'Ammo: {str(ammo_count)}')
     texto_municao = fonte.render(ammo_string, True, (255, 255, 255))
-    window.blit(texto_municao, (500, 20))
+    window.blit(texto_municao, (420, 10))
 
     # ----------------------------------------------------------------------------------------------------------------
 
@@ -329,7 +330,7 @@ while True:
     current_time = pygame.time.get_ticks() // 1000  # pega o tempo a partir da execução do programa em milissegundos e
     # converte para segundos
     timer = time_objective - current_time  # cronometro propriamente dito
-
+    #print(timer%61)    
     if timer > 0:
         time_bullet_show = 110
     else:
@@ -370,7 +371,7 @@ while True:
     else:
         cronometro = 'Zombies have arrived!'
     texto_cronometro = fonte.render(cronometro, True, (255, 255, 255))
-    window.blit(texto_cronometro, (20, 20))
+    window.blit(texto_cronometro, (20, 10))
 
     # -----------------------------------------------------------------------------------------------------------
 
@@ -469,9 +470,12 @@ while True:
                 bullet_rect.x = player_rect.x
                 bullet_rect.y = player_rect.y
                 fire_bullet(bullet_rect.x, bullet_rect.y)
-                ammo_count -= 1 # ALTEREI AQUI <------
+                ammo_count -= 1 
                 shot_sound.play()
-                
+            if event.key == K_ESCAPE:
+                pygame.quit()
+                exit()
+
 
         if event.type == KEYUP:
             if event.key == K_w or event.key == K_UP:
@@ -508,9 +512,9 @@ while True:
 
     killstreak_string = str(f'Killstreak: {killstreak}')
     texto_killstreak = fonte.render(killstreak_string, True, (255, 255, 255))
-    window.blit(texto_killstreak, (400, 720))
+    window.blit(texto_killstreak, (400, 690))
 
     surf = pygame.transform.scale(canvas, (640, 640))
-    window.blit(surf, (0, 60))
+    window.blit(surf, (0, 40))
     pygame.display.update()
     clock.tick(30)  # Framerate
