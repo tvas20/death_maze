@@ -49,12 +49,12 @@
 
 ## Desafios/Experiência:
 
-- Github
-- Programação em equipe
-- Pygame
+- **Github**:
+> Inicialmente, o github foi um grande desafio para todos no grupo pois poucos ou nenhum tinham conhecimento dessa ferramenta. Muitos conceitos foram aprendidos a partir de seu estudo, tanto a criação de um novo repositório quanto fazer um git pull,pull request, criar branchs, e até mesmo aprender a formatação de texto de arquivo legivel.   
+- **Programação em equipe**:
+> A programação em equipe, já é um grande desafio, se torna ainda maior quando se usa uma ferramenta (Github) que não conhece, ou que não se tem muita experiencia, contudo a programção em equipe se torna vantajosa apartir do momento que se encontram algumas barreiras e dificuldades, pois algumas dificuldades para alguns podem não ser para outros e vice-versa.
+- **Pygame**:
+> O pygame foi um dos grandes desafios para toda equipe pois, foi um instrumento de uso obrigatório em que todos deveriam saber sobre e entender o minimo para já começarmos a trabalhar. Muitas coisas foram aprendidas com o uso dessa vasta biblioteca desde a criação de um simples quadrado movél na tela até um jogo mais complexo conforme foi apresentado em nosso projeto. 
 
-  
-
-
-
-Projeto referente a matéria de Introdução a programação no periodo de 2020.2. Começamos em 12/08
+#
+###### *Projeto referente a matéria de Introdução a programação/CIN-UFPE no periodo de 2020.2. Começamos em 12/08/2021*
