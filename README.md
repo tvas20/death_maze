@@ -64,7 +64,7 @@
 - **Estruturas condicionais**:
 > Podem ser usados no código a partir dos comandos _If_, _Elif_ e _Else_, esta estrutura permite a checagem de preposições, quando uma condição é verdade ela executará o trecho de código atrelado a ela. Dentro do jogo essa função é usada essencialmente na movimentação do player principal. 
 - **Funções**:
-> Podem ser usados no código apenas se definidas previamente com a sintaxe _def()_, a partir de sua definição podemos invoca-la quantas vezes for necessario dentro do código utilizando apenas o nome que foi dado a ela no momento de sua definição, esta estrutura define um conjunto de comandos, dentro de qualquer programa com um conjunto de comandos que se repita muitas vezes se torna imprescindivel seu uso.
+> Podem ser usadas no código apenas se definidas previamente com a sintaxe _def()_, a partir de sua definição podemos invocá-la quantas vezes for necessario dentro do código utilizando apenas o nome que foi dado a ela no momento de sua definição. Sendo inprescindível em qualquer programa com um conjunto de comandos que se repita muitas vezes, como é o caso desse _game_.
 
 ## Desafios/Experiência:
 
