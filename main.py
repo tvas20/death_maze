@@ -8,50 +8,81 @@
 
 '''
 
+# módulos e bibliotecas utilizados:
 import random
 import pygame
 from pygame import time
 from pygame.locals import *
 from sys import exit
 
-clock = pygame.time.Clock()  # Set up the clock
+# configuração de relógio do jogo (pygame):
+clock = pygame.time.Clock()  
 
-# Window
+current_time = 0
+time_objective = 60
+
+# iniciando:
 pygame.init()
-pygame.display.set_caption('Death Maze')
-icon = pygame.image.load('death_maze/Assets/images/icon.png')
-pygame.display.set_icon(icon)
-width, height = 640, 720
 
+
+# ================ Configurações iniciais da tela e do jogo (START) ================
+
+# configurações da tela do jogo:
+pygame.display.set_caption('Death Maze')
+width, height = 640, 720
 window = pygame.display.set_mode((width, height))
 canvas = pygame.Surface((640, 640))
 
-# fonte das letras na tela
+# configurações de ícone do jogo:
+icon = pygame.image.load('death_maze/Assets/images/icon.png')
+pygame.display.set_icon(icon)
+
+# configuração de fonte do jogo:
 fonte = pygame.font.Font("death_maze/Font/PKMN.ttf", 20)
 
-# Player
+# configurações de audio do jogo:
+pygame.mixer.music.set_volume(0.25)
+bg_music = pygame.mixer.music.load('death_maze/Assets/audio/bg_music.mp3')
+pygame.mixer.music.play(-1)
+shot_sound = pygame.mixer.Sound('death_maze/Assets/audio/shot_bullet.wav')
+shot_sound.set_volume(0.11)
+zombie_arrived_sound = pygame.mixer.Sound('death_maze/Assets/audio/zombie-are-coming.wav')
+zombie_arrived_sound.set_volume(0.22)
+
+# ================ Configurações iniciais da tela e do jogo (END) ================
+
+
+
+
+# ================ Configurações iniciais do player e seu sistema de tiro (START) ================
+
+# Configurações iniciais do player (Criação do player):
 player_img = pygame.image.load('death_maze/Assets/images/sprites/player-right.png')
 x_player = ((width / 2) - player_img.get_width()) + 32
 y_player = ((height / 2) - player_img.get_width()) - 32
 player_rect = pygame.Rect(x_player, y_player, player_img.get_width(), player_img.get_height())  # Set up the hitbox
-player_speed = 8.7 
+player_speed = 8.4 
 player_health = 100
 
 # colisão do player com as bordas do labirinto:
 player_img_rect = player_img.get_rect()
 player_img_rect.center = [x_player, y_player]
-dead = False
 
+# desenhando o player na tela do jogo:
 def player(x, y):
     canvas.blit(player_img, (x, y))
     player_img_rect.center = [x, y]
 
+# variável para verificar se o player morreu:
+dead = False
+
+# para a movimentação do player (u- up / d - down / r - right / l - left)
 moving_u = False
 moving_d = False
 moving_r = False
 moving_l = False
 
-# criação da bala do player:
+# criação da bala para o player:
 bullet_img = pygame.image.load('death_maze/Assets/images/sprites/bullet.png')
 x_bullet = width + 64
 y_bullet = height + 64
@@ -60,15 +91,22 @@ bullet_spped = 30
 bullet_state = 'ready' # pronta para ser disparada
 bullet_collided_zombie = False
 
+# função que controla o movimento da bala na tela:
 def fire_bullet(x, y):
     global bullet_state
     bullet_state = 'fire'
     canvas.blit(bullet_img, (x + 10.5, y + 10.4))
 
-# gravar o sentido apontado pelo player:
+# gravar o sentido apontado pelo player (DEFAULT: Direita - d):
 ultima_tecla_pressionada = 'd'
 
-player_matou_horda = False # <-- aqui
+# variável que veridica se o player matou uma horda de zombies:
+player_matou_horda = False 
+
+# variável que armazena a quantidade de zombies mortos em uma partida pelo player:
+killstreak = int(0)
+
+# função que detecta a colisão entre a bala disparada e o zombie:
 def colisao_bala_zombie(rect_bullet, lista_zombie):
     global player_img, bullet_collided_zombie, killstreak, player_matou_horda
     lista_zombie_copia = [x for x in lista_zombie]
@@ -80,6 +118,7 @@ def colisao_bala_zombie(rect_bullet, lista_zombie):
     if len(lista_zombie) == 0:
         player_matou_horda = True
 
+# função que verifica se a bala colidiu com as paredes do labirinto:
 def colisao_bala_parede(bullet_rect):
     global tile_rects
     for tile in tile_rects:
@@ -87,32 +126,48 @@ def colisao_bala_parede(bullet_rect):
             return True
     return False
 
+# ================ Configurações iniciais do player e seu sistema de tiro (END) ================
+
+
+
+
+# ================ Configurações iniciais do inimigo (zombie) e sua interação com o cenário (START) ================
+
 # criação do zombie (inimigo):
 inimigos = []
 inimigo_img = pygame.image.load('death_maze/Assets/images/sprites/zombie-right.png')
-killstreak = int(0)
 
+
+# função que cria os inimigos na tela (gerar horda de zombies)
 def criar_inimigos(lista_zombie):
-    qnt_zombie = random.randint(8, 16)
+    qnt_zombie = random.randint(12, 24)
     for i in range(qnt_zombie):
         x_inimigo = random.choice([-inimigo_img.get_width(), width + inimigo_img.get_width()])
         y_inimigo = random.choice([-inimigo_img.get_height(), height + inimigo_img.get_height()])
-        inimigo_speed = random.choice([1.895, 2.965, 3.835, 4.97])
+        inimigo_speed = random.choice([1.89, 2.96, 3.82, 4.65])
         inimigo_rect = pygame.Rect(x_inimigo, y_inimigo, inimigo_img.get_width(), inimigo_img.get_height())
         # cria um zombie com suas propriedades:
         lista_zombie.append([i, inimigo_img, inimigo_rect, inimigo_speed])
 
+# função que desenha os inimigos (zombies) na tela:
 def desenhar_inimigos(lista_zombie): 
     for zombie in lista_zombie:
         canvas.blit(zombie[1], (zombie[2].x, zombie[2].y))
 
+# função que verifica se um inimigo (zombie) está atacando o player: 
 def colisao_player_inimigo(rect_player, lista_zombies):
     global player_health
     for zombie in lista_zombies:
         if rect_player.colliderect(zombie[2]):
             player_health -= 0.2
 
-# munição-------------------------------------------------------------------------------------------------------------
+# ================ Configurações iniciais do inimigo (zombie) e sua interação com o cenário (END) ================
+
+
+
+
+# CONFIGURAÇÃO INICIAL - SPRITE MUNIÇÃO COLETADA PELO PLAYER (ITEM DE JOGO):
+
 ammo_count = 0
 
 ammo1_img = pygame.image.load('death_maze/Assets/images/ammo.png')
@@ -121,7 +176,7 @@ y_ammo1 = random.randint(40, 600)
 ammo1_rect = pygame.Rect(x_ammo1, y_ammo1, ammo1_img.get_width(), ammo1_img.get_height())  # Set up the hitbox
 
 tempo_mun_1 = 0
-time_bullet_show_1 = random.randint(60, 100)
+time_bullet_show_1 = random.randint(100, 180)
 
 ammo2_img = pygame.image.load('death_maze/Assets/images/ammo.png')
 x_ammo2 = random.randint(40, 600)
@@ -129,26 +184,20 @@ y_ammo2 = random.randint(40, 600)
 ammo2_rect = pygame.Rect(x_ammo2, y_ammo2, ammo2_img.get_width(), ammo2_img.get_height())  # Set up the hitbox
 
 tempo_mun_2 = 0
-time_bullet_show_2 = random.randint(60, 100)
+time_bullet_show_2 = random.randint(100, 180)
 
-# -------------------------------------------------------------------------------------------------------------------
 
-# timer -------------------------------------------------------------------------------------------
-current_time = 0
-time_objective = 60
+# CONFIGURAÇÃO INICIAL - SPRITE TEMPO COLETADO PELO PLAYER (ITEM DE JOGO):
 
 clock_img = pygame.image.load('death_maze/Assets/images/clock.png')
 x_clock = random.randint(40, 600)
 y_clock = random.randint(40, 600)
 clock_rect = pygame.Rect(x_clock, y_clock, clock_img.get_width(), clock_img.get_height())  # set up hitbox
-
-# -------------------------------------------------------------------------------------------------
-
 tempo_rel = 0 #spawn de itens (relógio) - tempo de spawn
-#tempo_mun = 0 #spawn de itens (munição) - tempo de spawn
-#time_bullet_show = 110
 
-# Map
+
+# CONFIGURAÇÕES DO MAPA DO JOGO (LABIRINTO):
+
 ground_img, wall_img = pygame.image.load('death_maze/Assets/images/grass.png'), pygame.image.load('death_maze/Assets/images/wall.png')
 
 game_map = [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
@@ -172,14 +221,6 @@ game_map = [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-# configurações de audio:
-pygame.mixer.music.set_volume(0.25)
-bg_music = pygame.mixer.music.load('death_maze/Assets/audio/bg_music.mp3')
-pygame.mixer.music.play(-1)
-shot_sound = pygame.mixer.Sound('death_maze/Assets/audio/shot_bullet.wav')
-shot_sound.set_volume(0.11)
-zombie_arrived_sound = pygame.mixer.Sound('death_maze/Assets/audio/zombie-are-coming.wav')
-zombie_arrived_sound.set_volume(0.22)
 
 # Collision Detection Function
 def collision_test(rect, tiles):
@@ -233,7 +274,8 @@ def colision_test_for_spawnables(sprite_rect, sprite_img, x, y):
             else:
                 coliding_wall = False
     return sprite_rect
-    
+
+# função que reseta a partida:    
 def restart():
     global ammo_count, player_health, killstreak, inimigos, dead, tempo_rel, tempo_mun, player_rect, current_time, time_objective, time_bullet_show
 
@@ -250,31 +292,35 @@ def restart():
     time_objective = (pygame.time.get_ticks() // 1000) + 60
     time_bullet_show = 110
 
+# configurações do menu iniciar do jogo
 menu_iniciar, entrou_menu = True, False
+
 
 # Game Loop
 while True:
+
+    # Menu iniciar do jogo - START
     while menu_iniciar:
         window.fill((0,0,0))
         if not entrou_menu:
             title = str('DEATH   MAZE')
-            press_s = str("Press 'S' to start the game")
+            press_enter = str("Press   'ENTER'   to  start  the  game")
             w_jogo = str('[W] - Up')
             a_jogo = str('[A] - Left')
             s_jogo = str('[S] - Down')
             d_jogo = str('[D] - Right')
-            space_jogo = str('[SPACE   BAR] - Shoot')
+            space_jogo = str('[SPACE] - Shoot')
             player_img_menu_iniciar = pygame.image.load('death_maze/Assets/images/player_menu.png')
             zombie_img_menu_iniciar = pygame.image.load('death_maze/Assets/images/zombie_menu.png')
             message_title = fonte.render(title, True, (255, 0, 0))
-            message_s = fonte.render(press_s, True, (255, 255, 255))
+            message_enter = fonte.render(press_enter, True, (255, 255, 255))
             message_w_jogo = fonte.render(w_jogo, True, (255, 255, 255))
             message_a_jogo = fonte.render(a_jogo, True, (255, 255, 255))
             message_s_jogo = fonte.render(s_jogo, True, (255, 255, 255))
             message_d_jogo = fonte.render(d_jogo, True, (255, 255, 255))
             message_space_jogo = fonte.render(space_jogo, True, (255, 255, 255))
             rect_title = message_title.get_rect()
-            rect_s = message_s.get_rect()
+            rect_enter = message_enter.get_rect()
             rect_w_jogo = message_w_jogo.get_rect()
             rect_a_jogo = message_a_jogo.get_rect()
             rect_s_jogo = message_s_jogo.get_rect()
@@ -286,7 +332,7 @@ while True:
                 pygame.quit()
                 exit()
             if event.type == KEYDOWN:
-                if event.key == K_s:
+                if event.key == K_RETURN:
                     menu_iniciar = False
                     timer_menu = pygame.time.get_ticks() // 1000
                     time_objective += timer_menu
@@ -294,19 +340,19 @@ while True:
                     pygame.quit()
                     exit()
 
-        rect_title.center =  (width//2, height//2 - 30)
-        rect_s.center =  (width//2, height//2 + 60)
+        rect_title.center =  (width//2, height//2 - 45)
+        rect_enter.center =  (width//2, height//2 + 50)
 
-        rect_w_jogo.center = (width // 2 - 15, height - 160)
-        rect_a_jogo.center = (width // 2, height - 130)
-        rect_s_jogo.center = (width // 2, height - 100)
+        rect_w_jogo.center = (width // 2 - 15, height - 190)
+        rect_a_jogo.center = (width // 2, height - 150)
+        rect_s_jogo.center = (width // 2, height - 110)
         rect_d_jogo.center = (width // 2, height - 70)
         rect_space_jogo.center = (width // 2, height - 30)
 
         window.blit(player_img_menu_iniciar, (100, 150))
-        window.blit(zombie_img_menu_iniciar, (width - 215, 142))
+        window.blit(zombie_img_menu_iniciar, (width - 220, 140))
         window.blit(message_title, rect_title)
-        window.blit(message_s, rect_s)
+        window.blit(message_enter, rect_enter)
 
         window.blit(message_w_jogo, rect_w_jogo)
         window.blit(message_a_jogo, rect_a_jogo)
@@ -314,8 +360,9 @@ while True:
         window.blit(message_d_jogo, rect_d_jogo)
         window.blit(message_space_jogo, rect_space_jogo)
         pygame.display.update()
+    # Menu iniciar do jogo - FIM
 
-    #tempo_mun += 1
+
     # deleta a tela de fundo
     # necessario para blits não se sobreporem
     window.fill((0, 0, 0))
@@ -335,7 +382,7 @@ while True:
             c += 1
         r += 1
 
-    # player movement atributes
+    # movimentação do player:
     player_movement = [0, 0]
     if moving_u and player_img_rect.top > -(player_img.get_width() / 2):
         player_movement[1] -= player_speed
@@ -350,12 +397,13 @@ while True:
 
     player(player_rect.x, player_rect.y)
 
+    # mostrar vida do player na tela:
     life_string = str(f'Life: {player_health:.1f}')
     texto_vida = fonte.render(life_string, True, (255, 255, 255))
     window.blit(texto_vida, (20, 690))
     
 
-    # ammo spawn-------------------------------------------------------------------------------------------------
+    # ammo spawn (start)
     # ammo 1:
     tempo_mun_1 += 1
     # spawn inicial
@@ -414,21 +462,21 @@ while True:
     ammo_string = str(f'Ammo: {str(ammo_count)}')
     texto_municao = fonte.render(ammo_string, True, (255, 255, 255))
     window.blit(texto_municao, (420, 10))
+    # ammo spawn (end)
 
-    # ----------------------------------------------------------------------------------------------------------------
 
-    # timer implementation -------------------------------------------------------------------------------------------
+    # timer implementation - start
     tempo_rel += 1
     current_time = pygame.time.get_ticks() // 1000  # pega o tempo a partir da execução do programa em milissegundos e
     # converte para segundos
     timer = time_objective - current_time  # cronometro propriamente dito
    
     if timer > 0:
-        time_bullet_show_1 = random.randint(60, 100)
-        time_bullet_show_2 = random.randint(60, 100)
+        time_bullet_show_1 = random.randint(100, 180)
+        time_bullet_show_2 = random.randint(100, 180)
     else:
-        time_bullet_show_1 = random.randint(390, 490)
-        time_bullet_show_2 = random.randint(390, 490)
+        time_bullet_show_1 = random.randint(360, 480)
+        time_bullet_show_2 = random.randint(360, 480)
 
     # spawn dos relógios
     # primeiro spawn
@@ -437,7 +485,7 @@ while True:
 
     # colisão com player
     if player_rect.colliderect(clock_rect):
-        time_objective += 8  # incremento no objetivo de tempo
+        time_objective += 6  # incremento no objetivo de tempo
 
         # novo spawn
         x_clock = y_clock = 700
@@ -446,7 +494,7 @@ while True:
         clock_rect = colision_test_for_spawnables(clock_rect, clock_img, x_clock, y_clock)
         canvas.blit(clock_img, (clock_rect.x, clock_rect.y))  # printa relogio na tela
 
-    if tempo_rel == 320 and timer > 15:
+    if tempo_rel == 350 and timer > 15:
         tempo_rel = 0
         # novo spawn
         x_clock = random.randint(40, 600)
@@ -465,9 +513,11 @@ while True:
         cronometro = 'Zombies have arrived!'
     texto_cronometro = fonte.render(cronometro, True, (255, 255, 255))
     window.blit(texto_cronometro, (20, 10))
+    # timer implementation - end
 
-    # -----------------------------------------------------------------------------------------------------------
 
+
+    # perseguição zombie ao player:
     if (len(inimigos) == 0 and timer == 0) or player_matou_horda:
         criar_inimigos(inimigos)
         player_matou_horda = False
@@ -502,16 +552,20 @@ while True:
 
             zombie[2], collisions_direction_zombie = movement(zombie[2], inimigo_movement, tile_rects)
 
+
         desenhar_inimigos(inimigos)
 
         colisao_player_inimigo(player_rect, inimigos)
 
-    # game over
+
+
+
+    # GAME OVER do jogo - START
     if player_health <= 0:
         icon_go = pygame.image.load('death_maze/Assets/images/icon_game_over.png')
         game_over = str('YOU   DIED!')
-        press_r = str("Press 'R' to retry")
-        score_killstreak = f'Killed zombies:   {str(killstreak)}'
+        press_r = str("Press  'R'  to  retry")
+        score_killstreak = f'Killed  zombies:   {str(killstreak)}'
         message_go = fonte.render(game_over, True, (255, 0, 0))
         message_r = fonte.render(press_r, True, (255, 255, 255))
         message_score_killstreak = fonte.render(score_killstreak, True, (255, 255, 255))
@@ -537,6 +591,9 @@ while True:
             window.blit(message_score_killstreak, rect_score_killstreak)
             window.blit(message_r, rect_r)
             pygame.display.update()
+    # GAME OVER do jogo - FIM
+
+
 
 
     for event in pygame.event.get():
@@ -576,7 +633,6 @@ while True:
                 pygame.quit()
                 exit()
 
-
         if event.type == KEYUP:
             if event.key == K_w or event.key == K_UP:
                 moving_u = False
@@ -587,7 +643,9 @@ while True:
             if event.key == K_d or event.key == K_RIGHT:
                 moving_r = False
     
-    # ------> ALTEREI AQUI <------
+
+
+
     # movimento da bala:
     if (bullet_rect.x < -(player_img.get_width() / 2) or bullet_rect.x >= width or bullet_rect.y <= -(player_img.get_width() / 2) or bullet_rect.y >= height
         or bullet_collided_zombie or colisao_bala_parede(bullet_rect)):
@@ -610,11 +668,15 @@ while True:
     if len(inimigos) > 0:
         colisao_bala_zombie(bullet_rect, inimigos)
 
+
+    # mostar qunatos zombies foram mortos:
     killstreak_string = str(f'Killstreak: {killstreak}')
     texto_killstreak = fonte.render(killstreak_string, True, (255, 255, 255))
     window.blit(texto_killstreak, (400, 690))
 
+
+
     surf = pygame.transform.scale(canvas, (640, 640))
     window.blit(surf, (0, 40))
     pygame.display.update()
-    clock.tick(30)  # Framerate
+    clock.tick(30) 
