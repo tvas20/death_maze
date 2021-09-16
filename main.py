@@ -34,7 +34,7 @@ window = pygame.display.set_mode((width, height))
 canvas = pygame.Surface((640, 640))
 
 # configurações de ícone do jogo:
-icon = pygame.image.load('death_maze/Assets/images/icon.png')
+icon = pygame.image.load('death_maze/Assets/images/sprites/zombie-right.png')
 pygame.display.set_icon(icon)
 
 # configuração de fonte do jogo:
@@ -48,6 +48,8 @@ shot_sound = pygame.mixer.Sound('death_maze/Assets/audio/shot_bullet.wav')
 shot_sound.set_volume(0.11)
 zombie_arrived_sound = pygame.mixer.Sound('death_maze/Assets/audio/zombie-are-coming.wav')
 zombie_arrived_sound.set_volume(0.22)
+zombie_atk = pygame.mixer.Sound('death_maze/Assets/audio/zombie-atk.wav')
+zombie_atk.set_volume(0.085)
 
 # ================ Configurações iniciais da tela e do jogo (END) ================
 
@@ -61,7 +63,7 @@ player_img = pygame.image.load('death_maze/Assets/images/sprites/player-right.pn
 x_player = ((width / 2) - player_img.get_width()) + 32
 y_player = ((height / 2) - player_img.get_width()) - 32
 player_rect = pygame.Rect(x_player, y_player, player_img.get_width(), player_img.get_height())  # Set up the hitbox
-player_speed = 8.4 
+player_speed = 7.8 
 player_health = 100
 
 # colisão do player com as bordas do labirinto:
@@ -140,11 +142,11 @@ inimigo_img = pygame.image.load('death_maze/Assets/images/sprites/zombie-right.p
 
 # função que cria os inimigos na tela (gerar horda de zombies)
 def criar_inimigos(lista_zombie):
-    qnt_zombie = random.randint(12, 24)
+    qnt_zombie = random.randint(12, 28)
     for i in range(qnt_zombie):
         x_inimigo = random.choice([-inimigo_img.get_width(), width + inimigo_img.get_width()])
         y_inimigo = random.choice([-inimigo_img.get_height(), height + inimigo_img.get_height()])
-        inimigo_speed = random.choice([1.89, 2.96, 3.82, 4.65])
+        inimigo_speed = random.choice([1.89, 2.96, 3.82, 4.05])
         inimigo_rect = pygame.Rect(x_inimigo, y_inimigo, inimigo_img.get_width(), inimigo_img.get_height())
         # cria um zombie com suas propriedades:
         lista_zombie.append([i, inimigo_img, inimigo_rect, inimigo_speed])
@@ -160,6 +162,7 @@ def colisao_player_inimigo(rect_player, lista_zombies):
     for zombie in lista_zombies:
         if rect_player.colliderect(zombie[2]):
             player_health -= 0.2
+            zombie_atk.play()
 
 # ================ Configurações iniciais do inimigo (zombie) e sua interação com o cenário (END) ================
 
@@ -278,7 +281,7 @@ def colision_test_for_spawnables(sprite_rect, sprite_img, x, y):
 # função que reseta a partida:    
 def restart():
     global ammo_count, player_health, killstreak, inimigos, dead, tempo_rel, tempo_mun, player_rect, current_time, time_objective, time_bullet_show
-
+    
     ammo_count = 0
     player_health = 100
     killstreak = 0
@@ -349,8 +352,8 @@ while True:
         rect_d_jogo.center = (width // 2, height - 70)
         rect_space_jogo.center = (width // 2, height - 30)
 
-        window.blit(player_img_menu_iniciar, (100, 150))
-        window.blit(zombie_img_menu_iniciar, (width - 220, 140))
+        window.blit(player_img_menu_iniciar, (100, 145))
+        window.blit(zombie_img_menu_iniciar, (width - 220, 143))
         window.blit(message_title, rect_title)
         window.blit(message_enter, rect_enter)
 
@@ -398,7 +401,7 @@ while True:
     player(player_rect.x, player_rect.y)
 
     # mostrar vida do player na tela:
-    life_string = str(f'Life: {player_health:.1f}')
+    life_string = str(f'Shield: {player_health:.1f}')
     texto_vida = fonte.render(life_string, True, (255, 255, 255))
     window.blit(texto_vida, (20, 690))
     
@@ -576,7 +579,7 @@ while True:
         while dead:
             window.fill((0,0,0))
             for event in pygame.event.get():
-                if event.type == QUIT:
+                if event.type == QUIT or event.type == K_ESCAPE:
                     pygame.quit()
                     exit()
                 if event.type == KEYDOWN:
